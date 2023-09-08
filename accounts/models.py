@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
 # Create your models here.
 class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
@@ -8,7 +9,7 @@ class Account(AbstractBaseUser):
     email = models.EmailField(max_length=50, unique=True)
     phone_number = models.CharField(max_length=8, unique=True)
     
-    #required fields
+    # Required fields
     date_joined = models.DateField(auto_now_add=True)
     last_login = models.DateField(auto_now_add=True)
     is_admin = models.BooleanField(default=False)
