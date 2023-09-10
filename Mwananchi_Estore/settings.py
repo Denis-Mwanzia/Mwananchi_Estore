@@ -71,6 +71,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Mwananchi_Estore.wsgi.application'
 
+AUTH_USER_MODEL = 'accounts.Account'
+
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -123,5 +125,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     'Mwananchi_Estore/static',
 ]
+STATIC_ROOT = BASE_DIR / 'static'
 
-STATIC_ROOT = BASE_DIR /'static'
+# Media File Configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR /'media'
