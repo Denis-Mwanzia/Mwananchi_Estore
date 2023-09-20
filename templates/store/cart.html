@@ -2,7 +2,7 @@
 <section class="section-content padding-y bg">
   <div class="container">
     <!-- ============================ COMPONENT 1 ================================= -->
-
+    {% if cart_items %}
     <div class="row">
       <aside class="col-lg-9">
         <div class="card">
@@ -27,7 +27,7 @@
                       />
                     </div>
                     <figcaption class="info">
-                      <a href="#" class="title text-dark"
+                      <a href="{{cart_item.product.get_url}}" class="title text-dark"
                         >{{cart_item.product.product_name}}</a
                       >
                       <p class="text-muted small">
@@ -124,6 +124,13 @@
     </div>
     <!-- row.// -->
     <!-- ============================ COMPONENT 1 END .// ================================= -->
+    {% else %}
+    <h2 class="text-center">Your Shopping Cart is Empty</h2>
+    <hr>
+    <div class="text-center">
+    <a href="{% url "store" %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+    {%endif%}
   </div>
   <!-- container .//  -->
 </section>
