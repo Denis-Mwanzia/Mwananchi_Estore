@@ -15,7 +15,8 @@
           <!-- gallery-wrap .end// -->
         </aside>
         <main class="col-md-6 border-left">
-          <form action="{% url 'add_cart' single_product.id %}">
+          <form action="{% url 'add_cart' single_product.id %}" method="POST">
+            {% csrf_token %}
             <article class="content-body">
               <h1 class="title">{{single_product.product_name}}</h1>
 
@@ -30,24 +31,23 @@
                 <div class="item-option-select">
                   <h6>Choose Color</h6>
                     <select name="color" class="form-control">
-                      <option value="yellow">Yellow</option>
-                      <option value="grey">Grey</option>
-                      <option value="red">Red</option>
-                      <option value="green">Green</option>
-                      <option value="black">Black</option>
+                      <option value="" disabled selected>Select</option>
+                      {% for i in single_product.variation_set.colors %}
+                        <option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
+                      {% endfor %}
                     </select>
                 </div>
               </div>
               <!-- row.// -->
               <div class="row">
                 <div class="item-option-select">
-                  <h6>Select Size</h6>
+                  <h6>Choose Size</h6>
                   <select name="size" class="form-control">
-                      <option value="small">S</option>
-                      <option value="medium">M</option>
-                      <option value="large">X</option>
-                      <option value="extra-large">XL</option>
-                    </select>
+                    <option value="" disabled selected>Select</option>
+                    {% for i in single_product.variation_set.sizes %}
+                      <option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
+                    {% endfor %}
+                  </select>
                 </div>  
               </div>
               <!-- row.// -->
