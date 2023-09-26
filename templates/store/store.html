@@ -2,7 +2,11 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
   <div class="container">
-    <h2 class="title-page">Mwananchi Store</h2>
+    {% if 'search' in request.path %}
+      <h2 class="title-page">Search Result</h2>
+    {% else %}
+      <h2 class="title-page">Products In Our Store</h2>
+    {% endif %}
   </div>
   <!-- container //  -->
 </section>
@@ -136,7 +140,7 @@
         <header class="border-bottom mb-4 pb-3">
           <div class="form-inline">
             <span class="mr-md-auto"
-              ><b>{{product_count}}</b> Products Available
+              ><b>{{product_count}}</b> Products Found
             </span>
           </div>
         </header>
