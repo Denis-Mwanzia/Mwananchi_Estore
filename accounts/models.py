@@ -1,23 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-# Create your models here.
-
-
 class MyAccountManager(BaseUserManager):
     # CREATE NORMAL USER
-    def create_user(self, first_name, last_name, username, email, password=None):
+    def create_user(self, first_name, last_name, username, email, phone_number=None, password=None):
         if not email:
             raise ValueError('User must have an Email address.')
 
         if not username:
-            raise ValueError('User must have Username.')
+            raise ValueError('User must have a username.')
 
         user = self.model(
             email=self.normalize_email(email),
             username=username,
             first_name=first_name,
             last_name=last_name,
+            phone_number=phone_number
         )
 
         user.set_password(password)
@@ -25,13 +23,14 @@ class MyAccountManager(BaseUserManager):
         return user
 
     # CREATE SUPERUSER
-    def create_superuser(self, first_name, last_name, username, email, password):
+    def create_superuser(self, first_name, last_name, username, email, password, phone_number=None):
         user = self.create_user(
             email=self.normalize_email(email),
             username=username,
             password=password,
             first_name=first_name,
             last_name=last_name,
+            phone_number=phone_number
         )
         user.is_admin = True
         user.is_staff = True
@@ -40,13 +39,12 @@ class MyAccountManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-#DEFINING CUSTOME USER ACCOUNTS MODEL
 class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     username = models.CharField(max_length=50)
     email = models.EmailField(max_length=50, unique=True)
-    phone_number = models.CharField(max_length=10, unique=True)
+    phone_number = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     # Required fields
     date_joined = models.DateField(auto_now_add=True)
@@ -66,5 +64,5 @@ class Account(AbstractBaseUser):
     def has_perm(self, perm, obj=None):
         return self.is_admin
     
-    def has_module_perms(self, add_labbel):
+    def has_module_perms(self, add_label):
         return True

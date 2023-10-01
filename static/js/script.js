@@ -52,9 +52,12 @@ $(document).ready(function() {
 	} // end if
 
 
-
-
     
 }); 
 // jquery end
 
+// script.js
+
+setTimeout(function () {
+    $('#message').fadeOut('slow');
+}, 3000);
