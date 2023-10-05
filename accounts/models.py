@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
+from django.utils import timezone
 class MyAccountManager(BaseUserManager):
     # CREATE NORMAL USER
     def create_user(self, first_name, last_name, username, email, phone_number=None, password=None):
@@ -41,14 +41,14 @@ class MyAccountManager(BaseUserManager):
 
 class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=255)
     username = models.CharField(max_length=50)
     email = models.EmailField(max_length=50, unique=True)
     phone_number = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     # Required fields
     date_joined = models.DateField(auto_now_add=True)
-    last_login = models.DateField(auto_now_add=True)
+    last_login = models.DateField(default=timezone.now)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
