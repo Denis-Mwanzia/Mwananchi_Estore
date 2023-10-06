@@ -1,0 +1,12 @@
+{% autoescape off %} 
+Hi {{ user.first_name }},
+
+Click the link below to confirm your registration to Mwananchi Estore:
+http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+
+If you think this email was sent to you in error, please ignore it.
+
+Best regards,
+MwananchiEstore Team
+
+{%endautoescape %}

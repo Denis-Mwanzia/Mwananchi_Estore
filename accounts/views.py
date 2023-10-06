@@ -3,6 +3,12 @@ from .forms import RegistrationForm
 from .models import Account
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes, force_text
+from django.contrib.sites.shortcuts import get_current_site
 
 def register(request):
     if request.method == 'POST':
@@ -16,8 +22,25 @@ def register(request):
             username = email.split('@')[0]
             user = Account.objects.create_user(first_name=first_name, last_name=last_name, username=username, email=email, password=password)
             user.save()
-            messages.success(request, 'Registration successful.')
-            return redirect('register')
+            
+            #ACTIVATION LINK FUNCTIONALITY
+            current_site = get_current_site(request)
+            mail_subject = 'Please activate your account'
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            message = render_to_string('accounts/account_verification_email.html',{
+                'user':user,
+                'domain':current_site,
+                'uid':uid,
+                'token': token,
+            })
+            print("Token generated during registration:", token)
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+            
+            #messages.success(request, f'Thank you for registering with MwananchiEstore. We have sent you verification email to {email}. Please Verify.')
+            return redirect('/accounts/login/?command=verification&email='+email)
         else:
             print("Error")
             messages.error(request, 'Registration failed. Please correct the errors below.')
@@ -49,3 +72,25 @@ def logout(request):
     auth.logout(request)
     messages.success(request, 'You Are Logged Out')
     return redirect('login')
+
+def activate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    print("Received uid:", uid)
+    print("User:", user.first_name)
+    print("Received token:", token)
+
+    if user is not None:
+        print("User found with uid:", uid)
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Congratulations! Your account is activated.')
+        return redirect('login')
+    else:
+        print("User not found.")
+        messages.error(request, 'Invalid activation link.')
+        return redirect('register')
