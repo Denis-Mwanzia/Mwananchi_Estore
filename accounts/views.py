@@ -59,8 +59,8 @@ def login(request):
         if user is not None:
             auth.login(request, user)
             print("Logged In.")
-            #messages.success(request,'You Now Logged In.')
-            return redirect('home')
+            messages.success(request,'You Now Are Logged In.')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Invalid LogIn Credentials')
             return redirect('login')
@@ -85,12 +85,76 @@ def activate(request, uidb64, token):
     print("Received token:", token)
 
     if user is not None:
-        print("User found with uid:", uid)
+        #print("User found with uid:", uid)
         user.is_active = True
         user.save()
         messages.success(request, 'Congratulations! Your account is activated.')
         return redirect('login')
     else:
-        print("User not found.")
+        #print("User not found.")
         messages.error(request, 'Invalid activation link.')
         return redirect('register')
+    
+    
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, 'accounts/dashboard.html')
+
+def forgotPassword(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        if Account.objects.filter(email=email).exists():
+            user = Account.objects.get(email__exact=email)
+
+            current_site = get_current_site(request)
+            mail_subject = 'Reset your password'
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            message = render_to_string('accounts/reset_password_email.html',{
+                'user':user,
+                'domain':current_site,
+                'uid':uid,
+                'token': token,
+            })
+            print("Token generated during registration:", token)
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+            messages.success(request, f'Password Reset Email has been sent to {email}')
+            return redirect('login')
+        else:
+            messages.error(request,'Account Does Not Exist')
+            return redirect('forgotPassword')
+    return render(request, 'accounts/forgotPassword.html')
+
+def resetpassword_validate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid  # Store user ID in the session
+        messages.success(request, 'Please reset your password')
+        return redirect('resetPassword')
+    else:
+        messages.error(request, 'This link has expired.')
+        return redirect('login')
+    
+def resetPassword(request):
+    if request.method == 'POST':
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+        if password == confirm_password:
+            uid = request.session.get('uid')  # Retrieve user ID from the session
+            user = Account.objects.get(pk=uid)
+            user.set_password(password)
+            user.save()
+            messages.success(request, 'Password Reset Successfully')
+            return redirect('login')
+        else:
+            messages.error(request, 'Password does not match')
+            return redirect('resetPassword')
+    else:
+        return render(request, 'accounts/resetPassword.html')
