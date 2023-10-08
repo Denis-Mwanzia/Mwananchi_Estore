@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from store.models import Product, Variation
 from .models import Cart, CartItem
-# Create your views here.
+from django.contrib.auth.decorators import login_required
+# Rest of your code...
 
 
 def _cart_id(request):
@@ -128,3 +129,32 @@ def cart(request):
     }
 
     return render(request, 'store/cart.html', context)
+
+@login_required(login_url='login')
+def checkout(request):
+    total = 0
+    quantity = 0
+    cart_items = None
+    tax = 0
+    grant_total = 0
+
+    try:
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+
+        for cart_item in cart_items:
+            total += (cart_item.product.price * cart_item.quantity)
+            quantity += cart_item.quantity
+        tax = (0.5*total)/100
+        grant_total = total + tax
+    except Cart.DoesNotExist:
+        pass
+
+    context = {
+        'total': total,
+        'quantity': quantity,
+        'cart_items': cart_items,
+        'tax': tax,
+        'grant_total': grant_total,
+    }
+    return render(request, 'store/checkout.html', context)

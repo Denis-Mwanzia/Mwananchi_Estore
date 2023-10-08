@@ -63,9 +63,8 @@
                             <input type="hidden" name="{{ item.variation_category | lower }}" value="{{ item.variation_value | capfirst}}" />
                           {% endfor %}
                           <button href="" class="btn btn-light" type="submit" id="button-minus">
-                            <i class="fa fa-plus"></i>
+                            <i class="fa fa-plus"></i></button>
                         </form>
-                        </button>
                       </div>
                     </div>
                     <!-- input-group.// -->
@@ -119,7 +118,7 @@
                 height="26"
               />
             </p>
-            <a href="./place-order.html" class="btn btn-primary btn-block">
+            <a href="{% url "checkout" %}" class="btn btn-primary btn-block">
               Checkout
             </a>
             <a href="{% url "store" %}" class="btn btn-light btn-block"

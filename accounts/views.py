@@ -9,6 +9,8 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_text
 from django.contrib.sites.shortcuts import get_current_site
+from carts.views import _cart_id
+from carts.models import Cart, CartItem
 
 def register(request):
     if request.method == 'POST':
@@ -57,6 +59,17 @@ def login(request):
         user = auth.authenticate(email=email, password=password)
         
         if user is not None:
+            try:
+                cart = Cart.objects.get(cart_id=_cart_id(request))
+                is_cart_item_exists = CartItem.objects.filter(cart=cart).exists()
+                if is_cart_item_exists:
+                    cart_item = CartItem.objects.filter(cart=cart)
+                    for item in cart_item:
+                        item.user = user
+                        item.save()
+            except:
+                pass
+            
             auth.login(request, user)
             print("Logged In.")
             messages.success(request,'You Now Are Logged In.')
