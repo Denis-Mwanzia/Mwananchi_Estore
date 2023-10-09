@@ -36,7 +36,7 @@ def register(request):
                 'uid':uid,
                 'token': token,
             })
-            print("Token generated during registration:", token)
+            #print("Token generated during registration:", token)
             to_email = email
             send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
@@ -44,7 +44,7 @@ def register(request):
             #messages.success(request, f'Thank you for registering with MwananchiEstore. We have sent you verification email to {email}. Please Verify.')
             return redirect('/accounts/login/?command=verification&email='+email)
         else:
-            print("Error")
+            #print("Error")
             messages.error(request, 'Registration failed. Please correct the errors below.')
     else:
         form = RegistrationForm()
