@@ -8,6 +8,7 @@ from django.db.models import Q
 from .forms import ReviewForm
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from orders.models import OrderProduct
 import joblib
 import random
 import re
