@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from .forms import Orderform
 import datetime
 from datetime import datetime
+from django.utils import timezone
 from carts.models import CartItem
 from .models import Order
 # Create your views here.
@@ -23,8 +24,10 @@ def place_order(request):
     tax = (0.5*total)/100
     grant_total = total + tax
     if request.method == 'POST':
+        print('checking method')
         form = Orderform(request.POST)
         if form.is_valid():
+            print("If statement ... form validity")
             data = Order()
             data.user = request.user
             data.first_name = form.cleaned_data['first_name']
@@ -32,7 +35,7 @@ def place_order(request):
             data.phone_number = form.cleaned_data['phone_number']
             data.email = form.cleaned_data['email']
             data.address_line_1 = form.cleaned_data['address_line_1']
-            data.address_line_1 = form.cleaned_data['address_line_2']
+            data.address_line_2 = form.cleaned_data['address_line_2']
             data.county = form.cleaned_data['county']
             data.city = form.cleaned_data['city']
             data.estate = form.cleaned_data['estate']
@@ -40,12 +43,15 @@ def place_order(request):
             data.order_total = grant_total
             data.tax = tax
             data.save()
+            print("data saved")
             
-            #Generate Order Number
+            # Generate Order Number
             current_date = timezone.now().strftime('%Y%m%d')
-            order_number = f"{current_date}-{data.id}"  # Assuming you want to include the order ID
+            order_number = f"{current_date}-{data.id}"
             data.order_number = order_number
             data.save()
+            print("Data saved 2")
             return redirect('checkout')
         else:
+            print("error")
             return redirect('checkout')
