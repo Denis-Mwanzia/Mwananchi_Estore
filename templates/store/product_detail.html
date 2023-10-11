@@ -30,12 +30,14 @@
               <div class="row">
                 <div class="item-option-select">
                   <h6>Choose Color</h6>
-                    <select name="color" class="form-control">
-                      <option value="" disabled selected>Select</option>
-                      {% for i in single_product.variation_set.colors %}
-                        <option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
-                      {% endfor %}
-                    </select>
+                  <select name="color" class="form-control">
+                    <option value="" disabled selected>Select</option>
+                    {% for i in single_product.variation_set.colors %}
+                    <option value="{{ i.variation_value | lower }}">
+                      {{ i.variation_value | capfirst }}
+                    </option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
               <!-- row.// -->
@@ -45,21 +47,26 @@
                   <select name="size" class="form-control">
                     <option value="" disabled selected>Select</option>
                     {% for i in single_product.variation_set.sizes %}
-                      <option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
+                    <option value="{{ i.variation_value | lower }}">
+                      {{ i.variation_value | capfirst }}
+                    </option>
                     {% endfor %}
                   </select>
-                </div>  
+                </div>
               </div>
               <!-- row.// -->
               <hr />
               {% if single_product.stock <= 0 %}
-                <h5 class="text-danger">Out of stock</h5>
-                {% else %}
-                <button type="submit"class="btn btn-primary"><span class="text">Add to Cart</span><i class="fas fa-shopping-cart"></i></button>
-                {% endif %}
-          </article>
-          <!-- product-info-aside .// -->
-          <form/>
+              <h5 class="text-danger">Out of stock</h5>
+              {% else %}
+              <button type="submit" class="btn btn-primary">
+                <span class="text">Add to Cart</span
+                ><i class="fas fa-shopping-cart"></i>
+              </button>
+              {% endif %}
+            </article>
+            <!-- product-info-aside .// -->
+          </form>
         </main>
         <!-- col.// -->
       </div>
@@ -72,10 +79,40 @@
 
     <div class="row">
       <div class="col-md-9">
+        <form
+          method="POST"
+          action="{% url 'submit_review' single_product.id %}"
+        >
+          {% csrf_token %}
+          <h5>Write Your Review</h5>
+          <br />
+          Review Title:
+          <input type="text" class="form-control" name="subject" />
+          <br />
+          Review:
+          <textarea rows="4" class="form-control" name="review"></textarea>
+          <br />
+          {% if user.is_authenticated %}
+            {% if orderproduct %}
+              <input type="submit" value="Submit Review" class="btn btn-primary" />
+            {% else %}
+              <p> You must purchase this product to post a review.</p>
+            {% endif %}
+          {% else %}
+            <p> You must be logged in to post a review. 
+              <span> 
+                <a href="{% url "login" %}"> LogIn Now </a> 
+              </span> 
+            </p>
+          {% endif %}
+          <br />
+          {% include "includes/alerts.html" %}
+        </form>
+
+        <br />
         <header class="section-heading">
           <h3>Customer Reviews</h3>
         </header>
-
         <article class="box mb-3">
           <div class="icontext w-100">
             <img
