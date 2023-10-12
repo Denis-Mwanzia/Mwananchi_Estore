@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .forms import Orderform
+from .forms import OrderForm
 import datetime
 from datetime import datetime
 from django.utils import timezone
@@ -24,10 +24,8 @@ def place_order(request):
     tax = (0.5*total)/100
     grant_total = total + tax
     if request.method == 'POST':
-        print('checking method')
-        form = Orderform(request.POST)
+        form = OrderForm(request.POST)
         if form.is_valid():
-            print("If statement ... form validity")
             data = Order()
             data.user = request.user
             data.first_name = form.cleaned_data['first_name']
@@ -43,15 +41,26 @@ def place_order(request):
             data.order_total = grant_total
             data.tax = tax
             data.save()
-            print("data saved")
             
             # Generate Order Number
             current_date = timezone.now().strftime('%Y%m%d')
             order_number = f"{current_date}-{data.id}"
             data.order_number = order_number
             data.save()
-            print("Data saved 2")
-            return redirect('checkout')
-        else:
-            print("error")
-            return redirect('checkout')
+            
+            order = Order.objects.get(user=current_user, is_ordered=False,order_number=order_number)
+            full_name = order.full_name
+            context ={
+                'order':order,
+                'cart_item':cart_item,
+                'tax':tax,
+                'grant_total':grant_total,
+                'full_name':full_name,
+                }
+            return render(request, 'orders/payments.html', context)
+    else:
+        print("error")
+        return redirect('checkout')
+    
+def payments(request):
+    return render(request, 'orders/payments.html')

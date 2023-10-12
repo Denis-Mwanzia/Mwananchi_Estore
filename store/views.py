@@ -12,6 +12,7 @@ from orders.models import OrderProduct
 import joblib
 import random
 import re
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -55,7 +56,7 @@ def store(request, category_slug=None):
     context = {'products': paged_products, 'product_count': product_count}
     return render(request, 'store/store.html', context)
 
-
+@login_required
 def product_detail(request, category_slug, product_slug):
     try:
         single_product = Product.objects.get(
@@ -69,11 +70,19 @@ def product_detail(request, category_slug, product_slug):
     except OrderProduct.DoesNotExist:
         orderproduct = None
         
-    context = {'single_product': single_product,
-               'in_cart': in_cart,
-               'orderproduct': orderproduct,
-               }
+    reviews = ReviewRating.objects.filter(product_id=single_product.id, status=True,)
+    product_instance = Product.objects.get(pk=single_product.id)
+    average_review = product_instance.average_review()
+    context = {
+        'single_product': single_product,
+        'in_cart': in_cart,
+        'orderproduct': orderproduct,
+        'reviews': reviews,
+        'average_review': average_review,
+    }
+    
     return render(request, 'store/product_detail.html', context)
+
 
 
 

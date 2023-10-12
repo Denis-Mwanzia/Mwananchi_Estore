@@ -2,6 +2,7 @@ from django.db import models
 from category.models import Category
 from django.urls import reverse
 from accounts.models import Account
+from django.db.models import Avg
 
 # Create your models here.
 
@@ -17,6 +18,13 @@ class Product(models.Model):
     image = models.ImageField(upload_to='photos/products')
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now=True)
+    
+    def average_review(self):
+        try:
+            reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))
+            average_rating = reviews['average'] if reviews['average'] is not None else 0
+        except ReviewRating.DoesNotExist:
+            average_rating = 0
 
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.slug])
@@ -56,6 +64,7 @@ class ReviewRating(models.Model):
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     
     def __str__(self):
         return self.subject

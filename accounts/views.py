@@ -73,7 +73,7 @@ def login(request):
             auth.login(request, user)
             print("Logged In.")
             messages.success(request,'You Now Are Logged In.')
-            return redirect('dashboard')
+            return redirect('store')
         else:
             messages.error(request, 'Invalid LogIn Credentials')
             return redirect('login')
